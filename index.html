@@ -451,14 +451,9 @@ Your personality: warm, elegant, knowledgeable about Italian cuisine, genuinely 
   let conversationHistory = [];
 
   // ── INIT ───────────────────────────────────────────────────────
-  window.onload = () => {
-    // Check sessionStorage first
-    document.getElementById('setupBanner').style.display = 'none'; const stored = null;
-    if (stored) {
-      apiKey = stored;
-      document.getElementById('setupBanner').style.display = 'none';
-    }
-  };
+  window.onload = () > {
+
+    document.getElementById('setupBanner').style.display = 'none';};
 
   function saveKey() {
     const input = document.getElementById('apiKeyInput').value.trim();
