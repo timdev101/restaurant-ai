@@ -430,6 +430,7 @@
     parking: "Free street parking on Maple St. and Oak Ave. Valet available Fri–Sat after 5pm.",
     dietary: "We offer gluten-free pasta, vegan options, and can accommodate most allergies with advance notice.",
     popular: "Our most loved dishes are the Cacio e Pepe, Osso Buco, and Wood-fired Margherita Pizza."
+    menu: "APPETIZERS: Bruschetta $9, Calamari $13, Burrata $14. SOUPS & SALADS: Minestrone $8, Caesar $12. PASTA: Cacio e Pepe $19, Carbonara $21, Truffle Ravioli $24. MAINS: Branzino $32, Osso Buco $38, Chicken Piccata $26. DESSERTS: Tiramisu $9, Panna Cotta $8.",
   };
 
   const SYSTEM_PROMPT = `You are Sofia, a warm and knowledgeable assistant for ${RESTAURANT_CONFIG.name}, an ${RESTAURANT_CONFIG.cuisine} restaurant.
@@ -443,6 +444,7 @@ Restaurant details:
 - Parking: ${RESTAURANT_CONFIG.parking}
 - Dietary options: ${RESTAURANT_CONFIG.dietary}
 - Most popular dishes: ${RESTAURANT_CONFIG.popular}
+- Full menu: ${RESTAURANT_CONFIG.menu}
 
 Your personality: warm, elegant, knowledgeable about Italian cuisine, genuinely helpful. Keep responses concise (2-4 sentences max). Use occasional Italian words naturally. If asked something you don't know, offer to connect them with staff. Never make up information not provided above. Always end with a gentle follow-up question or offer to help further.`;
 
