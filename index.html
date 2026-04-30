@@ -406,7 +406,7 @@
     </div>
   </div>
 
-  <div class="setup-banner" id="setupBanner" style="display:none">
+  <div class="setup-banner" id="setupBanner">
     <p>🔑 Enter your Anthropic API key to activate the AI</p>
     <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
     <br>
@@ -451,9 +451,9 @@ Your personality: warm, elegant, knowledgeable about Italian cuisine, genuinely 
   let conversationHistory = [];
 
   // ── INIT ───────────────────────────────────────────────────────
-  window.onload = () > {
-
-    document.getElementById('setupBanner').style.display = 'none';};
+  window.onload = () => {
+    document.getElementById('setupBanner').style.display = 'none';
+  };
 
   function saveKey() {
     const input = document.getElementById('apiKeyInput').value.trim();
