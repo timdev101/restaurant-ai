@@ -447,12 +447,15 @@ Restaurant details:
 Your personality: warm, elegant, knowledgeable about Italian cuisine, genuinely helpful. Keep responses concise (2-4 sentences max). Use occasional Italian words naturally. If asked something you don't know, offer to connect them with staff. Never make up information not provided above. Always end with a gentle follow-up question or offer to help further.`;
 
   // ── STATE ──────────────────────────────────────────────────────
-  let apiKey = localStorage.getItem('restaurant_ai_key') || '';
+  let apiKey = '';
   let conversationHistory = [];
 
   // ── INIT ───────────────────────────────────────────────────────
   window.onload = () => {
-    if (apiKey) {
+    // Check sessionStorage first
+    const stored = sessionStorage.getItem('restaurant_ai_key');
+    if (stored) {
+      apiKey = stored;
       document.getElementById('setupBanner').style.display = 'none';
     }
   };
@@ -464,7 +467,7 @@ Your personality: warm, elegant, knowledgeable about Italian cuisine, genuinely 
       return;
     }
     apiKey = input;
-    localStorage.setItem('restaurant_ai_key', apiKey);
+    sessionStorage.setItem('restaurant_ai_key', apiKey);
     document.getElementById('setupBanner').style.display = 'none';
     addMessage('bot', 'Perfect! I\'m fully activated. Benvenuto — how can I help you tonight? 🥂');
   }
