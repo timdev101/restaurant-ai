@@ -486,6 +486,21 @@ Your personality: warm, elegant, knowledgeable about Italian cuisine, genuinely 
     }
 
     input.value = '';
+    if (text.toLowerCase().includes('reserv') || text.toLowerCase().includes('book') || text.toLowerCase().includes('table')) {
+    reservationStep = 1;
+    reservationData = {};
+    reservationData.guest_name = '';
+    addMessage('bot', "Perfetto! I'd love to help with a reservation. May I have your name please?");
+    document.getElementById('sendBtn').disabled = false;
+    return;
+  }
+  
+  if (reservationStep > 0) {
+    const response = await handleReservation(text);
+    addMessage('bot', response);
+    document.getElementById('sendBtn').disabled = false;
+    return;
+  }
     document.getElementById('quickReplies').style.display = 'none';
     addMessage('user', text);
 
