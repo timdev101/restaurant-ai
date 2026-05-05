@@ -456,6 +456,9 @@ Your personality: warm, elegant, knowledgeable about Italian cuisine, genuinely 
 
   // ── INIT ───────────────────────────────────────────────────────
   window.onload = () => {};
+  emailjs.init("YOUR_PUBLIC_KEY");
+    document.getElementById('setupBanner').style.display = 'none';
+};
    
   function saveKey() {
     const input = document.getElementById('apiKeyInput').value.trim();
