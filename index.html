@@ -521,6 +521,42 @@ Your personality: warm, elegant, knowledgeable about Italian cuisine, genuinely 
       } else {
         addMessage('bot', 'Mi dispiace, something went wrong. Please try again!');
       }
+      // ── RESERVATION FLOW ──────────────────────────────────────────
+let reservationData = {};
+let reservationStep = 0;
+
+async function handleReservation(userMessage) {
+  const steps = [
+    { key: 'guest_name', question: "Perfetto! I'd love to help with a reservation. May I have your name please?" },
+    { key: 'date', question: "Wonderful! What date would you like to dine with us?" },
+    { key: 'time', question: "What time works best for you?" },
+    { key: 'party_size', question: "How many guests will be joining you?" },
+    { key: 'guest_phone', question: "And a phone number so we can confirm your reservation?" }
+  ];
+
+  if (reservationStep < steps.length) {
+    if (reservationStep > 0) {
+      reservationData[steps[reservationStep - 1].key] = userMessage;
+    }
+    const response = steps[reservationStep].question;
+    reservationStep++;
+    return response;
+  } else {
+    reservationData[steps[steps.length - 1].key] = userMessage;
+    
+    await emailjs.send('service_gavz2dq', 'cf2stqr', {
+      guest_name: reservationData.guest_name,
+      date: reservationData.date,
+      time: reservationData.time,
+      party_size: reservationData.party_size,
+      guest_phone: reservationData.guest_phone
+    });
+
+    reservationStep = 0;
+    reservationData = {};
+    return `Meraviglioso! Your reservation is confirmed for ${reservationData.party_size || 'your party'} on ${reservationData.date || 'the requested date'} at ${reservationData.time || 'the requested time'}. We look forward to seeing you! If you need to make changes please call us at ${RESTAURANT_CONFIG.phone}. A presto! 🍷`;
+  }
+}
     } catch (err) {
       removeTyping(typingId);
       addMessage('bot', 'Connection issue — please check your API key and try again.');
