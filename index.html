@@ -413,7 +413,6 @@
 
   <script type="text/javascript"scr="https://cdn.jsdeliver.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script>
- emailjs.init("FiWLDXxUoKf2miVdm");
   // ── CONFIGURATION ──────────────────────────────────────────────
   const RESTAURANT_CONFIG = {
     name: "Bella Cucina",
@@ -451,8 +450,10 @@ Your personality: warm, elegant, knowledgeable about Italian cuisine, genuinely 
 
   // ── INIT ───────────────────────────────────────────────────────
   window.onload = () => {
-  emailjs.init("YOUR_PUBLIC_KEY");
-   };
+ if (typeof emailjs !== 'undefined') {
+    emailjs.init("FiWLDXxUoKf2m1Vdm");
+  }
+};
    
     // ── MESSAGING ─────────────────────────────────────────────────
   function sendQuick(text) {
