@@ -465,11 +465,6 @@ Your personality: warm, elegant, knowledgeable about Italian cuisine, genuinely 
     const text = input.value.trim();
     if (!text) return;
 
-    if (false) {
-      addMessage('bot', 'Please activate the assistant with your API key above first! 🔑');
-      return;
-    }
-
     input.value = '';
     if (text.toLowerCase().includes('reserv') || text.toLowerCase().includes('book') || text.toLowerCase().includes('table')) {
     reservationStep = 1;
