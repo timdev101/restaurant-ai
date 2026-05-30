@@ -406,13 +406,7 @@
     </div>
   </div>
 
-  <div class="setup-banner" id="setupBanner">
-    <p>🔑 Enter your Anthropic API key to activate the AI</p>
-    <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
-    <br>
-    <button class="setup-btn" onclick="saveKey()">Activate Assistant</button>
-  </div>
-
+  
   <div class="powered-by">Powered by Claude AI · Built for restaurants</div>
 
 </div>
@@ -457,22 +451,9 @@ Your personality: warm, elegant, knowledgeable about Italian cuisine, genuinely 
   // ── INIT ───────────────────────────────────────────────────────
   window.onload = () => {};
   emailjs.init("YOUR_PUBLIC_KEY");
-    document.getElementById('setupBanner').style.display = 'none';
-};
+   };
    
-  function saveKey() {
-    const input = document.getElementById('apiKeyInput').value.trim();
-    if (!input.startsWith('sk-ant-')) {
-      alert('Please enter a valid Anthropic API key starting with sk-ant-');
-      return;
-    }
-    apiKey = input;
-    sessionStorage.setItem('restaurant_ai_key', apiKey);
-    document.getElementById('setupBanner').style.display = 'none';
-    addMessage('bot', 'Perfect! I\'m fully activated. Benvenuto — how can I help you tonight? 🥂');
-  }
-
-  // ── MESSAGING ─────────────────────────────────────────────────
+    // ── MESSAGING ─────────────────────────────────────────────────
   function sendQuick(text) {
     document.getElementById('userInput').value = text;
     sendMessage();
