@@ -411,8 +411,8 @@
 
 </div>
 
-  <script type="text/javascript"scr="https://cdn.jsdeliver.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-<script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script>
   // ── CONFIGURATION ──────────────────────────────────────────────
   const RESTAURANT_CONFIG = {
     name: "Bella Cucina",
@@ -444,21 +444,36 @@ Restaurant details:
 Your personality: warm, elegant, knowledgeable about Italian cuisine, genuinely helpful. Keep responses concise (2-4 sentences max). Use occasional Italian words naturally. If asked something you don't know, offer to connect them with staff. Never make up information not provided above. Always end with a gentle follow-up question or offer to help further.`;
 
   // ── STATE ──────────────────────────────────────────────────────
-  let apiKey = '';
   let conversationHistory = [];
-  let reservationstep = 0;
+  let reservationStep = 0;
+  let reservationData = {};
+
+  const RESERVATION_STEPS = [
+    { key: 'guest_name',  question: "Perfetto! I'd love to help with a reservation. May I have your name please?" },
+    { key: 'date',        question: "Wonderful! What date would you like to dine with us?" },
+    { key: 'time',        question: "What time works best for you?" },
+    { key: 'party_size',  question: "How many guests will be joining you?" },
+    { key: 'guest_phone', question: "And a phone number so we can confirm your reservation?" }
+  ];
 
   // ── INIT ───────────────────────────────────────────────────────
   window.onload = () => {
- if (typeof emailjs !== 'undefined') {
-    emailjs.init("FiWLDXxUoKf2m1Vdm");
-  }
-};
-   
-    // ── MESSAGING ─────────────────────────────────────────────────
+    if (typeof emailjs !== 'undefined') {
+      emailjs.init("FiWLDXxUoKf2m1Vdm");
+    } else {
+      console.error("EmailJS failed to load — check the script tag URL.");
+    }
+  };
+
+  // ── MESSAGING ─────────────────────────────────────────────────
   function sendQuick(text) {
     document.getElementById('userInput').value = text;
     sendMessage();
+  }
+
+  function isReservationTrigger(text) {
+    const t = text.toLowerCase();
+    return t.includes('reservation') || t.includes('reserve') || t.includes('book a table') || t.includes('table for');
   }
 
   async function sendMessage() {
@@ -467,21 +482,28 @@ Your personality: warm, elegant, knowledgeable about Italian cuisine, genuinely 
     if (!text) return;
 
     input.value = '';
-    
     document.getElementById('quickReplies').style.display = 'none';
     addMessage('user', text);
+    document.getElementById('sendBtn').disabled = true;
+
+    // Reservation flow takes priority — either continuing an existing booking
+    // in progress, or the user just asked to make one.
+    if (reservationStep > 0 || isReservationTrigger(text)) {
+      const typingId = showTyping();
+      const reply = await handleReservation(text);
+      removeTyping(typingId);
+      addMessage('bot', reply);
+      document.getElementById('sendBtn').disabled = false;
+      return;
+    }
 
     conversationHistory.push({ role: 'user', content: text });
-
     const typingId = showTyping();
-    document.getElementById('sendBtn').disabled = true;
 
     try {
       const response = await fetch('/.netlify/functions/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
           max_tokens: 300,
@@ -500,48 +522,49 @@ Your personality: warm, elegant, knowledgeable about Italian cuisine, genuinely 
       } else {
         addMessage('bot', 'Mi dispiace, something went wrong. Please try again!');
       }
-      // ── RESERVATION FLOW ──────────────────────────────────────────
-let reservationData = {};
-let reservationStep = 0;
-
-async function handleReservation(userMessage) {
-  const steps = [
-    { key: 'guest_name', question: "Perfetto! I'd love to help with a reservation. May I have your name please?" },
-    { key: 'date', question: "Wonderful! What date would you like to dine with us?" },
-    { key: 'time', question: "What time works best for you?" },
-    { key: 'party_size', question: "How many guests will be joining you?" },
-    { key: 'guest_phone', question: "And a phone number so we can confirm your reservation?" }
-  ];
-
-  if (reservationStep < steps.length) {
-    if (reservationStep > 0) {
-      reservationData[steps[reservationStep - 1].key] = userMessage;
-    }
-    const response = steps[reservationStep].question;
-    reservationStep++;
-    return response;
-  } else {
-    reservationData[steps[steps.length - 1].key] = userMessage;
-    
-    await emailjs.send('service_gavz2dq', 'cf2stqr', {
-      guest_name: reservationData.guest_name,
-      date: reservationData.date,
-      time: reservationData.time,
-      party_size: reservationData.party_size,
-      guest_phone: reservationData.guest_phone
-    });
-
-    reservationStep = 0;
-    reservationData = {};
-    return `Meraviglioso! Your reservation is confirmed for ${reservationData.party_size || 'your party'} on ${reservationData.date || 'the requested date'} at ${reservationData.time || 'the requested time'}. We look forward to seeing you! If you need to make changes please call us at ${RESTAURANT_CONFIG.phone}. A presto! 🍷`;
-  }
-}
     } catch (err) {
       removeTyping(typingId);
-      addMessage('bot', 'Connection issue — please check your API key and try again.');
+      addMessage('bot', 'Connection issue — please try again in a moment.');
     }
 
     document.getElementById('sendBtn').disabled = false;
+  }
+
+  // ── RESERVATION FLOW ──────────────────────────────────────────
+  async function handleReservation(userMessage) {
+    // Store the answer to whatever question we just asked (skip this on the
+    // very first message, since that's the trigger phrase, not an answer).
+    if (reservationStep > 0) {
+      const prevKey = RESERVATION_STEPS[reservationStep - 1].key;
+      reservationData[prevKey] = userMessage;
+    }
+
+    if (reservationStep < RESERVATION_STEPS.length) {
+      const question = RESERVATION_STEPS[reservationStep].question;
+      reservationStep++;
+      return question;
+    }
+
+    // All 5 answers collected — send the email and reset state.
+    const { guest_name, date, time, party_size, guest_phone } = reservationData;
+
+    try {
+      await emailjs.send('service_gavz2dq', 'cf2stqr', {
+        guest_name, date, time, party_size, guest_phone
+      });
+    } catch (err) {
+      console.error('EmailJS send failed:', err);
+      reservationStep = 0;
+      reservationData = {};
+      return `I've got all your details, but I'm having trouble sending the confirmation right now. Please call us directly at ${RESTAURANT_CONFIG.phone} to lock in your reservation for ${party_size} on ${date} at ${time}.`;
+    }
+
+    const confirmation = `Meraviglioso! Your reservation is confirmed for ${party_size} on ${date} at ${time}, ${guest_name}. We'll text or call ${guest_phone} to confirm. If you need to make changes, call us at ${RESTAURANT_CONFIG.phone}. A presto! 🍷`;
+
+    reservationStep = 0;
+    reservationData = {};
+
+    return confirmation;
   }
 
   // ── UI HELPERS ────────────────────────────────────────────────
